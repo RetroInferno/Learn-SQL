@@ -178,3 +178,10 @@ GROUP BY b.id
 HAVING num_albums = 1
 ORDER BY band_name ASC;
 -- Man the order of operations for SQL is strange...
+
+SELECT b.id as band_id, b.name as band_name, COUNT(a.name) as num_albums
+FROM bands AS b LEFT JOIN albums AS a ON b.id = a.band_id
+GROUP BY b.id
+HAVING COUNT(a.name) > 0
+ORDER BY num_albums DESC, band_id ASC;
+--some fun sorting at the END!
