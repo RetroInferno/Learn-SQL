@@ -1,22 +1,22 @@
-DROP DATABASE IF EXISTS record_company;
-CREATE DATABASE record_company;
-
-USE record_company;
-
+---------ONLY for mysql---------------
+-- DROP DATABASE IF EXISTS record_company;
+-- CREATE DATABASE record_company;
+-- USE record_company;
+------------------------------------
+DROP TABLE IF EXISTS albums;
 DROP TABLE IF EXISTS bands;
 
+--NOTE!! SERIAL is the default in postgress for id INT AUTO_INCREMENT
 CREATE TABLE
     bands (
-        id INT NOT NULL AUTO_INCREMENT,
+        id SERIAL NOT NULL,
         name VARCHAR(255) NOT NULL,
         PRIMARY KEY (id)
     );
 
-DROP TABLE IF EXISTS albums;
-
 CREATE table
     albums (
-        id INT NOT NULL AUTO_INCREMENT,
+        id SERIAL NOT NULL,
         name VARCHAR(255) NOT NULL,
         release_year INT,
         band_id INT NOT NULL,
@@ -35,7 +35,8 @@ SELECT * FROM bands LIMIT 2;
 
 SELECT name FROM bands;
 
-SELECT id as 'ID', name AS 'Band Name' FROM bands;
+--POSTGRESS alisa needs double qoutes for spaces
+SELECT id as "ID", name AS "band_name" FROM bands;
 
 SELECT * FROM bands ORDER BY name DESC;
 
@@ -87,12 +88,22 @@ SELECT * FROM bands
 JOIN albums ON bands.id =  albums.band_id
 WHERE albums.release_year >= 2000;
 
-SELECT bands.id as 'artist_id',
-	bands.name as 'artist_name',
-	albums.id as 'album_id',
-	albums.name as 'album_name',
-	albums.release_year as 'year'
+SELECT bands.id as artist_id,
+	bands.name as artist_name,
+	albums.id as album_id,
+	albums.name as album_name,
+	albums.release_year as year
 FROM bands
-JOIN albums ON bands.id =  albums.band_id;
+JOIN albums ON bands.id = albums.band_id;
 -- This is basically saying (SELECT these columns) FROM (bands JOIN albums (ON this Column Prop))
 
+SELECT * FROM bands
+LEFT JOIN albums ON bands.id =  albums.band_id;
+
+SELECT * FROM albums
+RIGHT JOIN bands ON bands.id =  albums.band_id;
+-- some sql don't have a RIGHT JOIN, so just filp the ORDER BY
+
+-- mysql does not have outer or full outer joins....
+SELECT * FROM albums
+FULL OUTER JOIN bands ON bands.id =  albums.band_id;
