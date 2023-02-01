@@ -1,3 +1,6 @@
+-- Active: 1675224858364@@127.0.0.1@5432@record_company
+--POSTGRESQL--
+
 ---------ONLY for mysql---------------
 -- DROP DATABASE IF EXISTS record_company;
 -- CREATE DATABASE record_company;
@@ -107,3 +110,84 @@ RIGHT JOIN bands ON bands.id =  albums.band_id;
 -- mysql does not have outer or full outer joins....
 SELECT * FROM albums
 FULL OUTER JOIN bands ON bands.id =  albums.band_id;
+
+
+--AGREGATE FUNCTIONS
+SELECT AVG(release_year) FROM albums;
+SELECT SUM(release_year) FROM albums;
+SELECT band_id FROM albums
+GROUP BY band_id;
+-- Group cannot work when selecting other column if the
+    -- grouping is not the same as the column selected
+
+SELECT COUNT(release_year) FROM albums;
+--THis counts the number of items with release year, excluding NULL
+
+SELECT band_id, COUNT(band_id) FROM albums
+GROUP BY band_id;
+-- This count runs AFTER the aggregation of group.
+-- now it counts the number of items in each band_id Grouping!
+-- 1. GROUP BY
+-- 2. SELECT Column
+-- 3. COUNT band_id based on GROUPING
+
+-----------------------------------------
+/*
+Next we are going to count the number of ablum by each artist!
+We'll use group by and count!
+But first! it's helpful to see the Joined table to figure out what to
+    group by and which columns to select and COUNT!!
+Execute the query below first:
+*/
+SELECT *
+FROM bands AS b LEFT JOIN albums AS a ON b.id = a.band_id;
+/*
+based on the visual we can group by band.id or band.name!
+    - This means that we can only select columns that are
+      1:1 realationship with band.id (or band.name)
+
+Notice that while album.band_id is almost 1:1,
+there's a missing value for an artist with not albums,
+THUS we can't group where a value is NULL, and we
+can't/don't want to count NULL anyway
+
+So we will select the band.id, b.name, and count ANY COLUMN in album :)
+since the logic is, count the items in album (1 line for each album)
+that belong to a particular band.id
+*/
+SELECT bands.id, bands.name, COUNT(albums.release_year)
+FROM bands LEFT JOIN albums ON bands.id = albums.band_id
+GROUP BY bands.id;
+
+SELECT b.id as band_id, b.name as band_name, COUNT(a.name) as num_albums
+FROM bands AS b LEFT JOIN albums AS a ON b.id = a.band_id
+GROUP BY b.id;
+/*
+-- Same thing but with Aliases on everything
+-- Remember we do the left join because some artists
+    don't have an album, but we still want the count!
+*/
+
+/*
+Below query won't work if we only want to have albums of a certain COUNT...
+"WHERE" only applys to pre-agreated data. To get post-agregated where...
+we must use "HAVING" which == where in this CONTEXT
+
+-- SELECT b.id as band_id, b.name as band_name, COUNT(a.name) as num_albums
+-- FROM bands AS b LEFT JOIN albums AS a ON b.id = a.band_id
+-- GROUP BY b.id
+-- WHERE num_albums = 1;  <-- Problem Here
+*/
+SELECT b.id as band_id, b.name as band_name, COUNT(a.name) as num_albums
+FROM bands AS b LEFT JOIN albums AS a ON b.id = a.band_id
+GROUP BY b.id
+HAVING COUNT(a.name) = 1;
+-- Postgres HAVING can't use Alias assigned eariler in statment!!!
+-- Man the order of operations for SQL is strange...
+
+SELECT b.id as band_id, b.name as band_name, COUNT(a.name) as num_albums
+FROM bands AS b LEFT JOIN albums AS a ON b.id = a.band_id
+GROUP BY b.id
+HAVING COUNT(a.name) > 0
+ORDER BY num_albums DESC, band_id ASC;
+--some fun sorting at the END!
