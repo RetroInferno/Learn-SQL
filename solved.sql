@@ -76,3 +76,20 @@ DELETE FROM bands WHERE name = "Bruno Mars"; -- or id = ?
 
 -- 10.
 SELECT AVG(length) as "Average Song Duration" FROM songs;
+
+-- 11.
+SELECT
+    albums.name as "Album",
+    albums.release_year as "Release Year",
+    MAX(songs.length) as "Duration" FROM
+albums JOIN songs on albums.id = songs.album_id
+GROUP BY albums.id;
+
+--12.
+SELECT
+    bands.name as "Band",
+    COUNT(songs.id)
+FROM Bands
+JOIN albums ON bands.id = albums.band_id
+JOIN songs ON songs.album_id = albums.id
+GROUP BY albums.band_id; -- or bands.id
